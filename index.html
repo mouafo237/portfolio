@@ -9,6 +9,16 @@
     <link rel="stylesheet" href="style.css">
     <!-- --------- FAVICON ---------- -->
     <link rel="shortcut icon" href="assets/images/favicon.png" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <style>
+        /* Ajoutez votre style ici */
+        .btn {
+            position: relative;
+        }
+        .btn.loading {
+            cursor: not-allowed; /* Optionnel: Change le curseur pour indiquer que le bouton est désactivé */
+        }
+    </style>
     <title>Portfolio | Mouafo</title>
 </head>
 <body>
@@ -59,7 +69,7 @@
                 <p>Je suis <span class="typedText"></span></p>
             </div>
             <div class="featured-text-info">
-                <p>Développeur web full-stack avec une expertise dans la création de solutions complètes allant de la conception front-end à la gestion des bases de données et des serveurs. Je suis passionné par la création d'applications web performantes et évolutives.</p>
+                <p style="text-align: justify;">Développeur web full-stack avec une expertise dans la création de solutions complètes allant de la conception front-end à la gestion des bases de données et des serveurs. Je suis passionné par la création d'applications web performantes et évolutives.</p>
             </div>
             <div class="featured-text-btn">
                 <button class="btn blue-btn">Engagez-moi</button>
@@ -180,25 +190,24 @@
              <div class="col">
                 <div class="contact-info">
                     <h2>Retrouvez-moi <i class="uil uil-corner-right-down"></i></h2>
-                    <p><i class="uil uil-envelope"></i> Email : mouafotene001@gmail.com</p>
-                    <p><i class="uil uil-phone"></i> Tel : +237 655 785 898</p>
+                    <p><i class="uil uil-envelope"></i>mouafotene001@gmail.com</p>
+                    <p><i class="uil uil-phone"></i>+237 655 785 898</p>
                 </div>
              </div>
-             <div class="col">
-                <div class="form-control">
-                    <div class="form-inputs">
-                        <input type="text" class="input-field" placeholder="Nom">
-                        <input type="text" class="input-field" placeholder="Email">
-                    </div>
-                    <div class="text-area">
-                        <textarea placeholder="Message"></textarea>
-                    </div>
-                    <div class="form-button">
-                        <button class="btn">Envoyer <i class="uil uil-message"></i></button>
-                    </div>
-                </div>
-             </div>
-          </div>
+             <div class="form-control">
+        
+            <form id="contactForm">
+            <div class="form-inputs">
+                <input type="text" name="Nom" class="input-field" placeholder="Nom" required>
+                <input type="email" name="Email" class="input-field" placeholder="Email" required>
+            </div>
+            <div class="text-area">
+                <textarea name="Message" placeholder="Message" required></textarea>
+            </div>
+            <div class="form-button">
+                <button type="submit" class="btn">Envoyer <i class="uil uil-message"></i></button>
+            </div>
+        </form>
        </section>
     </main>
 
@@ -242,5 +251,78 @@
     <script src="https://unpkg.com/scrollreveal"></script>
     <!-- ----- MAIN JS ----- -->
     <script src="script.js"></script>
+
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.getElementById('contactForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Empêche le rechargement de la page
+
+            // Récupère les éléments du formulaire
+            const form = event.target;
+            const submitButton = form.querySelector('.btn');
+
+            // Vérifie si tous les champs sont remplis
+            if (!form.checkValidity()) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erreur',
+                    text: 'Veuillez remplir tous les champs avant d\'envoyer.',
+                });
+                return;
+            }
+
+            // Change le texte du bouton pour indiquer que l'envoi est en cours
+            submitButton.innerHTML = 'Envoi en cours... <i class="uil uil-message"></i>';
+            submitButton.classList.add('loading');
+
+            // Délai de 3 secondes avant l'envoi des données
+            setTimeout(async function() {
+                // Récupère les données du formulaire
+                const formData = new FormData(form);
+                const data = {
+                    Nom: formData.get('Nom'),
+                    Email: formData.get('Email'),
+                    Message: formData.get('Message')
+                };
+
+                // Remplacez cette URL par l'URL de votre endpoint SheeDB
+                const sheedbEndpoint = 'https://sheetdb.io/api/v1/a0y12bp80syke';
+                // Remplacez 'your-api-key' par votre clé API SheeDB
+                const apiKey = 'a0y12bp80syke';
+
+                try {
+                    const response = await fetch(sheedbEndpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${apiKey}`
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    if (response.ok) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Succès',
+                            text: 'Message envoyé avec succès!',
+                        });
+                        form.reset(); // Réinitialise le formulaire
+                    } else {
+                        throw new Error('Erreur lors de l\'envoi du message');
+                    }
+                } catch (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erreur',
+                        text: `Erreur : ${error.message}`,
+                    });
+                } finally {
+                    // Réinitialise le texte du bouton une fois l'envoi terminé
+                    submitButton.innerHTML = 'Envoyer <i class="uil uil-message"></i>';
+                    submitButton.classList.remove('loading');
+                }
+            }, 3000); // 3000 millisecondes = 3 secondes
+        });
+    </script>
 </body>
 </html>
